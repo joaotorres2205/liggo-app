@@ -71,10 +71,11 @@ export default function AuthPage() {
     const json = await res.json();
     setLoading(false);
 
-    const verifyUrl = `/auth/verify?contact=${encodeURIComponent(contact)}&via=${via}`;
+    const verifyUrl = `/auth/verify?contact=${encodeURIComponent(finalContact)}&via=${via}`;
+    const debugOtp = Boolean(json?.code && json?.debug === 'dev-fallback');
 
     if (json?.ok) {
-      if (json.code) {
+      if (debugOtp) {
         setHint(`Modo de desenvolvimento — código: ${json.code}. Redirecionando em 8s...`);
         const id = window.setTimeout(() => (window.location.href = verifyUrl), 8000);
         redirectTimerRef.current = id;

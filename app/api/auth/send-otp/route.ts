@@ -16,11 +16,13 @@ export async function POST(req: Request) {
 
   try {
     const result = await sendOtp(contact, via, name);
+    const showDevCode = process.env.DEBUG_OTP === 'true' && process.env.NODE_ENV !== 'production';
     return NextResponse.json({
       ok: true,
       via,
       hint: 'OTP enviado',
-      code: process.env.NODE_ENV === 'development' ? result.code : undefined,
+      code: showDevCode ? result.code : undefined,
+      debug: result?.debug,
     });
   } catch (error: any) {
     return NextResponse.json({ error: error?.message || 'Não foi possível enviar o código' }, { status: 500 });

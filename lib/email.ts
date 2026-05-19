@@ -16,9 +16,20 @@ function hasSmtpConfig() {
   return Boolean(smtpHost && smtpUser && smtpPass);
 }
 
+const allowDevFallback = process.env.DEBUG_OTP === 'true' && process.env.NODE_ENV !== 'production';
+
 export async function sendOtpEmail(email: string, code: string): Promise<SendEmailResult> {
   if (!hasSmtpConfig()) {
-    const message = `SMTP não configurado. OTP de desenvolvimento para ${email}: ${code}`;
+    if (!allowDevFallback) {
+      const message = 'SMTP não configurado. Configure SMTP_HOST, SMTP_USER e SMTP_PASS para enviar e-mails reais.';
+      console.error('[auth/sendOtp] SMTP config missing:', message);
+      return {
+        success: false,
+        message,
+      };
+    }
+
+    const message = `DEBUG OTP: SMTP não configurado. OTP de desenvolvimento para ${email}: ${code}`;
     console.log('[auth/sendOtp] dev fallback:', message);
     return {
       success: true,
@@ -48,17 +59,26 @@ export async function sendOtpEmail(email: string, code: string): Promise<SendEma
     </div>
   `;
 
-  const info = await transporter.sendMail({
-    from: emailFrom,
-    to: email,
-    subject,
-    text,
-    html,
-  });
+  try {
+    await transporter.verify();
+    const info = await transporter.sendMail({
+      from: emailFrom,
+      to: email,
+      subject,
+      text,
+      html,
+    });
 
-  console.log('[auth/sendOtp] email enviado para', email, 'messageId=', info.messageId);
-  return {
-    success: true,
-    message: info.messageId,
-  };
+    console.log('[auth/sendOtp] email enviado para', email, 'messageId=', info.messageId);
+    return {
+      success: true,
+      message: info.messageId,
+    };
+  } catch (error: any) {
+    console.error('[auth/sendOtp] failed to send email', error);
+    return {
+      success: false,
+      message: error?.message || 'Falha ao enviar o e-mail OTP',
+    };
+  }
 }

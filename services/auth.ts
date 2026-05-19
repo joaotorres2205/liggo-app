@@ -70,14 +70,17 @@ export async function sendOtp(contact: string, via: 'email' | 'whatsapp' = 'emai
   const { error: updateError } = await supabase.from('users').update(updateData).eq('id', userId);
   if (updateError) throw new Error(updateError.message);
 
+  let debug: string | undefined;
+
   if (via === 'email') {
     const emailResult = await sendOtpEmail(emailValue, code);
     if (!emailResult.success) {
       throw new Error(emailResult.message || 'Falha ao enviar o código por e-mail');
     }
+    debug = emailResult.debug;
   }
 
-  return { code, contact: normalizedContact };
+  return { code, contact: normalizedContact, debug };
 }
 
 export async function verifyOtp(contact: string, code: string, via: 'email' | 'whatsapp' = 'email') {
