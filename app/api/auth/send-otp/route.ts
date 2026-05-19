@@ -16,11 +16,11 @@ export async function POST(req: Request) {
 
   try {
     const result = await sendOtp(contact, via, name);
-    const showDevCode = process.env.DEBUG_OTP === 'true' && process.env.NODE_ENV !== 'production';
+    const showDevCode = Boolean(result?.debug);
     return NextResponse.json({
       ok: true,
       via,
-      hint: 'OTP enviado',
+      hint: result?.debug ? 'Modo de desenvolvimento — OTP disponível localmente.' : 'OTP enviado com sucesso.',
       code: showDevCode ? result.code : undefined,
       debug: result?.debug,
     });

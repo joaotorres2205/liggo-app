@@ -10,12 +10,12 @@
     "seed": "npx tsx seeds/seed-supabase.ts"
   },
   "dependencies": {
-    "nodemailer": "^6.9.4",
     "@supabase/supabase-js": "^2.106.0",
     "framer-motion": "^11.0.0",
     "next": "16.2.6",
     "react": "19.2.4",
-    "react-dom": "19.2.4"
+    "react-dom": "19.2.4",
+    "resend": "^6.12.3"
   },
   "optionalDependencies": {
     "bcryptjs": "^2.4.3",
@@ -23,7 +23,6 @@
     "jsonwebtoken": "^9.0.3"
   },
   "devDependencies": {
-    "@types/nodemailer": "^6.4.6",
     "@tailwindcss/postcss": "^4",
     "@types/node": "^20",
     "@types/react": "^19",

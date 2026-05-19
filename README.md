@@ -20,18 +20,21 @@ You can start editing the page by modifying `app/page.tsx`. The page auto-update
 
 ### Environment variables
 
-The auth flow requires Supabase and SMTP configuration for real OTP delivery.
+The auth flow requires Supabase and Resend configuration for real OTP delivery.
 
 Required server env vars:
 
 - `SUPABASE_URL`
 - `SUPABASE_SERVICE_ROLE_KEY`
-- `SMTP_HOST`
-- `SMTP_PORT`
-- `SMTP_USER`
-- `SMTP_PASS`
-- `EMAIL_FROM` (optional)
+- `RESEND_API_KEY`
+- `SENDER_EMAIL`
 - `DEBUG_OTP=true` enables OTP code display only in local development for debugging
+
+Notes:
+
+- `RESEND_API_KEY` must be a valid Resend API key.
+- `SENDER_EMAIL` should be a verified sender address in Resend.
+- WhatsApp login is currently a development placeholder; use e-mail para autenticação real.
 
 This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
 

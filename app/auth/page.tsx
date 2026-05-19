@@ -68,14 +68,9 @@ export default function AuthPage() {
 
     let finalContact = contact;
     if (via === 'whatsapp') {
-      const normalized = normalizePhoneNumber(contact);
-      if (!normalized) {
-        setLoading(false);
-        setHint('WhatsApp inválido. Use +55DDD999999999 ou formato internacional válido.');
-        return;
-      }
-      finalContact = normalized;
-      setContact(normalized);
+      setLoading(false);
+      setHint('Login via WhatsApp está em desenvolvimento. Use e-mail por enquanto.');
+      return;
     }
 
     const res = await fetch('/api/auth/send-otp', {
@@ -144,8 +139,12 @@ export default function AuthPage() {
 
         <label className="mt-4 block text-sm font-medium text-slate-700">{contactLabel}</label>
         {via === 'whatsapp' ? (
-          <p className="mt-1 text-xs text-slate-500">Formato: +55 (11) 99999-9999</p>
-        ) : null}
+          <p className="mt-1 text-xs text-slate-500">
+            Login via WhatsApp em breve. Use e-mail para autenticação real.
+          </p>
+        ) : (
+          <p className="mt-1 text-xs text-slate-500">Digite seu melhor e-mail para receber o código.</p>
+        )}
         <input
           type={contactType}
           required

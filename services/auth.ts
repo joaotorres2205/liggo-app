@@ -26,6 +26,13 @@ export async function sendOtp(contact: string, via: 'email' | 'whatsapp' = 'emai
   const otpHash = await hashPassword(code);
   const otpExpires = new Date(Date.now() + 10 * 60 * 1000).toISOString();
 
+  if (via === 'whatsapp') {
+    const allowWhatsappDev = process.env.DEBUG_OTP === 'true' && process.env.NODE_ENV !== 'production';
+    if (!allowWhatsappDev) {
+      throw new Error('Login via WhatsApp disponível apenas em desenvolvimento. Use e-mail por enquanto.');
+    }
+  }
+
   const supabase = getSupabaseServer() as any;
   const query = via === 'email' ? { email: emailValue } : { phone: phoneValue };
 
@@ -78,6 +85,8 @@ export async function sendOtp(contact: string, via: 'email' | 'whatsapp' = 'emai
       throw new Error(emailResult.message || 'Falha ao enviar o código por e-mail');
     }
     debug = emailResult.debug;
+  } else {
+    debug = 'whatsapp-dev';
   }
 
   return { code, contact: normalizedContact, debug };
