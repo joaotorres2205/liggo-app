@@ -9,10 +9,15 @@ export default function SetupPassword() {
   const [confirm, setConfirm] = useState('');
   const [loading, setLoading] = useState(false);
   const [msg, setMsg] = useState<string | null>(null);
+  const [invalidRoute, setInvalidRoute] = useState(false);
 
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
-    setContact(params.get('contact') || '');
+    const contactParam = params.get('contact') || '';
+    if (!contactParam) {
+      setInvalidRoute(true);
+    }
+    setContact(contactParam);
     setVia(params.get('via') === 'whatsapp' ? 'whatsapp' : 'email');
   }, []);
 
@@ -34,6 +39,18 @@ export default function SetupPassword() {
     } else {
       setMsg(json?.error || 'Erro ao criar senha');
     }
+  }
+
+  if (invalidRoute) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-slate-50 p-4">
+        <div className="w-full max-w-md rounded-xl bg-white p-6 shadow">
+          <h2 className="text-lg font-semibold">Link inválido</h2>
+          <p className="mt-2 text-sm text-slate-600">Não foi possível identificar seu contato. Volte para a página de login para reiniciar o fluxo.</p>
+          <a href="/auth" className="mt-4 inline-flex rounded-full bg-slate-900 px-4 py-2 text-sm font-semibold text-white">Voltar ao login</a>
+        </div>
+      </div>
+    );
   }
 
   return (

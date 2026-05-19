@@ -1,5 +1,5 @@
-import { NextResponse } from 'next/server';
-import type { NextRequest } from 'next/server';
+import { NextResponse, type NextRequest } from 'next/server';
+import { verifyToken } from '@/lib/jwt';
 
 const PUBLIC_ROUTES = ['/auth', '/auth/login-password', '/api/auth'];
 
@@ -16,10 +16,21 @@ export function middleware(request: NextRequest) {
 
   if (pathname.startsWith('/app')) {
     const token = request.cookies.get('liggo_token')?.value;
-    if (!token) {
+    const user = token ? verifyToken(token) : null;
+    if (!user) {
       const redirectUrl = request.nextUrl.clone();
       redirectUrl.pathname = '/auth';
-      return NextResponse.redirect(redirectUrl);
+      const res = NextResponse.redirect(redirectUrl);
+      if (token) {
+        res.cookies.set('liggo_token', '', {
+          httpOnly: true,
+          secure: process.env.NODE_ENV === 'production',
+          sameSite: 'lax',
+          path: '/',
+          maxAge: 0,
+        });
+      }
+      return res;
     }
   }
 

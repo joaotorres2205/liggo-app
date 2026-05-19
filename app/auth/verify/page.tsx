@@ -8,11 +8,34 @@ export default function VerifyPage() {
   const [via, setVia] = useState<'email' | 'whatsapp'>('email');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [invalidRoute, setInvalidRoute] = useState(false);
 
   useEffect(() => {
+    let mounted = true;
+    async function checkSession() {
+      try {
+        const res = await fetch('/api/auth/session');
+        if (!mounted) return;
+        if (res.ok) {
+          window.location.href = '/app';
+        }
+      } catch {
+        // ignore network errors
+      }
+    }
+
     const params = new URLSearchParams(window.location.search);
-    setContact(params.get('contact') || '');
+    const contactParam = params.get('contact') || '';
+    if (!contactParam) {
+      setInvalidRoute(true);
+    }
+    setContact(contactParam);
     setVia(params.get('via') === 'whatsapp' ? 'whatsapp' : 'email');
+    checkSession();
+
+    return () => {
+      mounted = false;
+    };
   }, []);
 
   async function verify(e: React.FormEvent) {
@@ -31,6 +54,18 @@ export default function VerifyPage() {
     } else {
       setError(json?.error || 'Código inválido');
     }
+  }
+
+  if (invalidRoute) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-slate-50 p-4">
+        <div className="w-full max-w-md rounded-xl bg-white p-6 shadow">
+          <h2 className="text-lg font-semibold">Link inválido</h2>
+          <p className="mt-2 text-sm text-slate-600">Não foi possível identificar seu contato. Volte para a página de login para solicitar um novo código.</p>
+          <a href="/auth" className="mt-4 inline-flex rounded-full bg-slate-900 px-4 py-2 text-sm font-semibold text-white">Voltar ao login</a>
+        </div>
+      </div>
+    );
   }
 
   return (

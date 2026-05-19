@@ -1,12 +1,32 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 
 export default function LoginPasswordPage() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    let mounted = true;
+    async function checkSession() {
+      try {
+        const res = await fetch('/api/auth/session');
+        if (!mounted) return;
+        if (res.ok) {
+          window.location.href = '/app';
+        }
+      } catch {
+        // ignore network errors
+      }
+    }
+
+    checkSession();
+    return () => {
+      mounted = false;
+    };
+  }, []);
 
   async function login(e: React.FormEvent) {
     e.preventDefault();

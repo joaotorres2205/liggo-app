@@ -12,7 +12,23 @@ export default function AuthPage() {
   const redirectTimerRef = useRef<number | null>(null);
 
   useEffect(() => {
+    let mounted = true;
+    async function checkSession() {
+      try {
+        const res = await fetch('/api/auth/session');
+        if (!mounted) return;
+        if (res.ok) {
+          window.location.href = '/app';
+        }
+      } catch {
+        // ignore network errors during auth page load
+      }
+    }
+
+    checkSession();
+
     return () => {
+      mounted = false;
       if (redirectTimerRef.current) window.clearTimeout(redirectTimerRef.current);
     };
   }, []);
